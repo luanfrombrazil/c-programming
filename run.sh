@@ -1,5 +1,5 @@
 clear
-NUM_CASES=1;
+NUM_CASES=3;
 
 RED="\e[1;31m"
 GREEN="\e[1;32m"
@@ -10,17 +10,17 @@ gcc main.c -o out/main -lm
 
 while [ $case -le $NUM_CASES ]
 do
-	rm m$case.out
-	./out/main < cases/$case.in >> cases/m$case.out
+	rm ./cases/$case.m.out
+	./out/main < cases/$case.in >> cases/$case.m.out
 	
-	if diff -q cases/m$case.out cases/$case.out >/dev/null; then
+	if diff -q cases/$case.m.out cases/$case.out >/dev/null; then
     	echo -e "${GREEN}"
     	figlet "CORRECT"
-		echo -e "\t    TIME TO SUBMIT! ${ENDCOLOR}"
+		echo -e "O $case ESTÁ CORRETO ${ENDCOLOR}"
 	else
 		echo -e "${RED}"
     	figlet "INCORRECT"
-		echo -e "\t     JUST FUCKING FIX IT ${ENDCOLOR}"
+		echo -e "O $case ESTÁ INCORRETO ${ENDCOLOR}"
 	fi
 	case=$(( case+1 ))
 done
