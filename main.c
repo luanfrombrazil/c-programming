@@ -1,92 +1,106 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <string.h>
 
-int colorindo()
-{
-    int n, m, x, y, k;
-    scanf("%d %d %d %d %d", &n, &m, &x, &y, &k);
+int arremesso() {
+    int buraco, velocidade;
+    while (1) {
+        scanf("%d %d", &buraco, &velocidade);
+        if (buraco == 0)
+            return 0;
+        int encontrado = 0;
 
-    return 0;
+        for (int i = velocidade; i > 0; i--) {
+            int path = 0;
+            encontrado = 0;
+            for (int j = i; j > 0; j--) {
+                for (int k = j; k > 0; k--) {
+                    path += j;
+                    if (path == buraco) {
+                        encontrado = 1;
+                        break;
+                    }
+                    if (path > buraco && encontrado ==0) {
+                        break;
+                    }
+                }
+                if (encontrado) break;
+            }
+            if (encontrado) break;
+        }
+        if (encontrado) {
+            printf("possivel\n");
+        }else{
+            printf("impossivel\n");
+        }
+    }
 }
 
-typedef struct
-{
-    char nome[50];
-    int idade;
-    float nota;
-} aluno;
-
-int gestao()
-{
-    int alunoCounter = 0;
-    int letras[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    float notas_t = 0;
-    while (1)
-    {
-        aluno *a = malloc(sizeof(aluno));
-        if (scanf("%s\n%d\n%f", &a->nome, &a->idade, &a->nota) != 3)
-        {
+// Função para comparar dois arquivos linha a linha ignorando linhas vazias
+int compara_arquivos(const char* arq1, const char* arq2) {
+    FILE *f1 = fopen(arq1, "r");
+    FILE *f2 = fopen(arq2, "r");
+    if (!f1 || !f2) {
+        if (f1) fclose(f1);
+        if (f2) fclose(f2);
+        return 0;
+    }
+    char linha1[256], linha2[256];
+    int iguais = 1;
+    char *p1, *p2;
+    while (1) {
+        // Lê próxima linha não vazia de f1
+        do {
+            p1 = fgets(linha1, sizeof(linha1), f1);
+        } while (p1 && (linha1[0] == '\n' || linha1[0] == '\r' || linha1[0] == '\0'));
+        // Lê próxima linha não vazia de f2
+        do {
+            p2 = fgets(linha2, sizeof(linha2), f2);
+        } while (p2 && (linha2[0] == '\n' || linha2[0] == '\r' || linha2[0] == '\0'));
+        if (!p1 && !p2) break; // ambos terminaram
+        if (!p1 || !p2 || strcmp(linha1, linha2) != 0) {
+            iguais = 0;
             break;
         }
-        printf("Dados do aluno:\nNome: %s\nIdade: %d\nNota: %.2f\n\n", a->nome, a->idade, a->nota);
-        letras[(((int)a->nome[0]) - 65)] += 1;
-        notas_t += a->nota;
-        alunoCounter++;
-
-        free(a);
     }
-
-    int maior[5] = {0, 0, 0, 0, 0};
-    int num_maior = 0;
-    int j = 0;
-
-    for (int k = 0; k < 5; k++)
-    {
-        num_maior = 25;
-        for (int i = 24; i >= 0; i--)
-        {
-            if (letras[i] >= letras[num_maior])
-            {
-                num_maior = i;
-            }
-        }
-        if (letras[num_maior] != 0)
-        {
-            maior[j++] = num_maior + (letras[num_maior] * 26);
-        }
-        // printf("LETRA: %d, N OC:%d", num_maior, letras[num_maior]);
-        letras[num_maior] = 0;
-    }
-
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            if (i != j && maior[j] % 26 > maior[i]%26)
-            {
-                int aux = maior[j];
-                maior[j] = maior[i];
-                maior[i] = aux;
-            }
-        }
-    }
-
-    printf("Estatisticas Finais:\nTotal de alunos: %d\nMedia das notas: %.2f\n\n", alunoCounter, (notas_t / alunoCounter));
-    printf("Top 5 letras mais frequentes:\n");
-    int indice = 5;
-    while (indice--)
-    {
-        if (maior[4 - indice] / 26)
-        {
-            printf("%c: %d (%.1f%%)\n", (char)(maior[4 - indice] % 26 + 65), maior[4 - indice] / 26, (float)((maior[4 - indice] / 26) * 100.0 / (float)alunoCounter));
-        }
-    }
-
-    return 0;
+    fclose(f1);
+    fclose(f2);
+    return iguais;
 }
 
-int main()
-{
-    return gestao();
+int main() {
+    char* tests[] = {"arremesso/1", "arremesso/2", "arremesso/3"};
+    int ntests = 3;
+    for (int i = 0; i < ntests; i++) {
+        char in[64], out[64], myout[64];
+        snprintf(in, sizeof(in), "%s.in", tests[i]);
+        snprintf(out, sizeof(out), "%s.out", tests[i]);
+        snprintf(myout, sizeof(myout), "%s.myout", tests[i]);
+
+        FILE* fin = fopen(in, "r");
+        if (!fin) {
+            printf("[ERRO] Não foi possível abrir %s\n", in);
+            continue;
+        }
+        FILE* fout = freopen(myout, "w", stdout);
+        if (!fout) {
+            printf("[ERRO] Não foi possível redirecionar saída para %s\n", myout);
+            fclose(fin);
+            continue;
+        }
+        // Redireciona stdin
+        freopen(in, "r", stdin);
+        arremesso();
+        fflush(stdout);
+        fclose(fout);
+        // Restaura stdout
+        freopen("CON", "w", stdout);
+        // Compara saída
+        if (compara_arquivos(out, myout)) {
+            printf("[OK] %s\n", tests[i]);
+        } else {
+            printf("[ERRO] %s\n", tests[i]);
+        }
+    }
+    return 0;
 }

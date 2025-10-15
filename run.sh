@@ -1,5 +1,5 @@
 clear
-NUM_CASES=3;
+NUM_CASES=2;
 
 RED="\e[1;31m"
 GREEN="\e[1;32m"
